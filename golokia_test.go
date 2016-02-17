@@ -14,38 +14,6 @@ var (
 	targetPort = "9999"
 )
 
-func TestListDomains(t *testing.T) {
-	domains, err := ListDomains("http://" + host + ":" + port)
-	if err != nil {
-		t.Errorf("err(%s) returned", err)
-	}
-	fmt.Println("Domains: ", domains)
-}
-
-func TestListBeans(t *testing.T) {
-	beans, err := ListBeans("http://"+host+":"+port, "java.lang")
-	if err != nil {
-		t.Errorf("err(%s) returned, err")
-	}
-	fmt.Println("Beans: ", beans)
-}
-
-func TestListProperties(t *testing.T) {
-	props, err := ListProperties("http://"+host+":"+port, "java.lang", "type=Threading")
-	if err != nil {
-		t.Errorf("err(%s), returned, err")
-	}
-	fmt.Println("Properties: ", props)
-}
-
-func TestGetAttr(t *testing.T) {
-	val, err := GetAttr("http://"+host+":"+port, "java.lang", "type=Threading", "PeakThreadCount")
-	if err != nil {
-		t.Errorf("err(%s), returned", err)
-	}
-	fmt.Println("Value:", val)
-}
-
 func TestClientListDomains(t *testing.T) {
 	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
 	client.SetTarget(targetHost + ":" + targetPort)

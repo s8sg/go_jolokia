@@ -47,18 +47,10 @@ props, err := client.ListProperties("java.lang", []string{"type=Threading"})
 val, err := client.GetAttr("java.lang", []string{"type=Threading"}, "PeakThreadCount")
 ```
 
-#### Step 4 : Use it in a direct approach
-```go
-domains, err := ListDomains(jolokiaUrl)
-
-beans, err := ListBeans(jolokiaUrl, domainName)
-
-props, err := ListProperties(jolokiaUrl, domainName, propertyName)
-
-val, err := GetAttr(jolokiaUrl, domainName, propertyName, attributeName)
-```
 
 #### Current Status:
 The Golokia build is success
 The test cases are passing 
 
+#### Reference
+github.com/cmceniry/golokia 
