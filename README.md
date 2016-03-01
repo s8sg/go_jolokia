@@ -18,7 +18,7 @@
 
 Golokia is a Simple jolokia JMX/HTTP wrapper for Go. It supports jolokia proxy setup as well as direct host connection.
 
-[Golokia GoDoc] (https://godoc.org/github.com/swarvanusg/golokia)
+[![GoDoc](https://img.shields.io/badge/api-Godoc-blue.svg?style=flat-square)](https://godoc.org/github.com/swarvanusg/golokia)
 
 ### Version
 0.1.0
