@@ -1,7 +1,7 @@
-# go-jolokia
+# go_jolokia
 
 ```
-< go-jolokia >
+< go_jolokia >
  --------
    \
     \   
@@ -16,9 +16,9 @@
           \                       /   
 ```
 
-go-jolokia is a Simple jolokia JMX/HTTP wrapper for Go. It supports jolokia proxy setup as well as direct host connection.
+go_jolokia is a Simple jolokia JMX/HTTP wrapper for Go. It supports jolokia proxy setup as well as direct host connection.
 
-[![GoDoc](https://img.shields.io/badge/api-Godoc-blue.svg?style=flat-square)](https://godoc.org/github.com/swarvanusg/go-jolokia)
+[![GoDoc](https://img.shields.io/badge/api-Godoc-blue.svg?style=flat-square)](https://godoc.org/github.com/swarvanusg/go_jolokia)
 
 ### Version
 0.1.0
@@ -26,9 +26,9 @@ go-jolokia is a Simple jolokia JMX/HTTP wrapper for Go. It supports jolokia prox
 ### Usage
 
 #### Step 1 : Get It
-To get the go-jolokia install Go and execute the below command 
+To get the go_jolokia install Go and execute the below command 
 ```
-go get github.com/swarvanusg/go-jolokia
+go get github.com/swarvanusg/go_jolokia
 ```
 
 #### Step 2 : Initiate a client
@@ -49,7 +49,7 @@ val, err := client.GetAttr("java.lang", []string{"type=Threading"}, "PeakThreadC
 
 
 #### Current Status:
-The go-jolokia build is success
+The go_jolokia build is success
 The test cases are passing 
 
 #### Inspired from
