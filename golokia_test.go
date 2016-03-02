@@ -1,4 +1,4 @@
-package golokia
+package go_jolokia
 
 import "testing"
 import "fmt"
