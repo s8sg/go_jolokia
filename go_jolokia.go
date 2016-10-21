@@ -104,6 +104,7 @@ type httpRequest struct {
 /* Http response param */
 type httpResponse struct {
 	Status string
+	StatusCode int
 	Body   []byte
 }
 
@@ -113,8 +114,8 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 	var req *http.Request
 	var newReqErr error
 
-	fmt.Println("Request Url: ", url)
-	fmt.Println("Request Body: ", string(request.Body))
+	//fmt.Println("Request Url: ", url)
+	//fmt.Println("Request Body: ", string(request.Body))
 
 	if request.Body != nil {
 		var jsonStr = request.Body
@@ -139,14 +140,15 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 		return nil, reqErr
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	
+	//fmt.Println("response Status:", resp.Status)
+	//fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	//fmt.Println("response Body:", string(body))
 
 	response := &httpResponse{}
 	response.Status = resp.Status
+	response.StatusCode = resp.StatusCode
 	response.Body = body
 
 	return response, nil
@@ -240,6 +242,9 @@ func (jolokiaClient *JolokiaClient) executePostRequest(jolokiaRequest *JolokiaRe
 	response, httpErr := performPostRequest(request)
 	if httpErr != nil {
 		return "", fmt.Errorf("HTTP Request Failed: %v", httpErr)
+	}
+	if response.StatusCode != 200 {
+		return "", fmt.Errorf("HTTP Request Error Code: %v", response.Status)
 	}
 	jolokiaResponse := string(response.Body)
 	return jolokiaResponse, nil
