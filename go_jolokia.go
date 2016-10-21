@@ -7,11 +7,11 @@ package go_jolokia
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 /* Jolokia Client properties connecting a Jolokia agent */
@@ -113,8 +113,8 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 	var req *http.Request
 	var newReqErr error
 
-	//fmt.Println("Request Url: ", url)
-	//fmt.Println("Request Body: ", string(request.Body))
+	fmt.Println("Request Url: ", url)
+	fmt.Println("Request Body: ", string(request.Body))
 
 	if request.Body != nil {
 		var jsonStr = request.Body
@@ -140,10 +140,10 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	//fmt.Println("response Body:", string(body))
+	fmt.Println("response Body:", string(body))
 
 	response := &httpResponse{}
 	response.Status = resp.Status
@@ -162,7 +162,11 @@ func wrapRequestData(opType, mbeanName string, properties []string, path, attrib
 	}
 	target := ""
 	if targetUrl != "" {
-		target = "service:jmx:rmi:///jndi/rmi://" + targetUrl + "/jmxrmi"
+		if strings.HasPrefix(targetUrl, "service:jmx:") {
+			target = targetUrl
+		} else {
+			target = "service:jmx:rmi:///jndi/rmi://" + targetUrl + "/jmxrmi"
+		}
 	}
 	requestData := RequestData{Type: opType, Mbean: mbean, Path: path, Target: Target{Url: target, Password: targetPass, User: targerUser}}
 	// Marshal to the json string
