@@ -18,6 +18,27 @@ var (
 	targetPort = "9999"
 )
 
+func TestClientExecuteOperation(t *testing.T) {
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget(targetHost + ":" + targetPort)
+	result, err := client.ExecuteOperation("java.lang:type=Threading", "getThreadInfo([J,boolean,boolean)", 
+		[]interface{}{[]int{153,263}, true, true}, "")
+	if err != nil {
+		t.Errorf("err(%s) returned", err)
+	}
+	fmt.Println("Operation result: ", result)
+}
+
+func TestClientListDomainsOverridingInternalUrl(t *testing.T) {
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget("service:jmx:rmi:///jndi/rmi://" + targetHost + ":" + targetPort + "/jmxrmi")
+	domains, err := client.ListDomains()
+	if err != nil {
+		t.Errorf("err(%s) returned", err)
+	}
+	fmt.Println("Domains: ", domains)
+}
+
 func TestClientListDomains(t *testing.T) {
 	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
 	client.SetTarget(targetHost + ":" + targetPort)
