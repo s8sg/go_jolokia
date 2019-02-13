@@ -1,4 +1,4 @@
-// Copyright © 2014 Swarvanu Sengupta <swarvanusg.com>.
+// Maintainer Swarvanu Sengupta <swarvanusg@gmail.com>.
 //
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
@@ -89,11 +89,11 @@ type RequestData struct {
 
 /* The wrapper structure for an EXEC json request */
 type ExecRequestData struct {
-	Type  string `json:"type"`
-	Mbean string `json:"mbean"`
-	Operation  string `json:"operation"`
+	Type      string      `json:"type"`
+	Mbean     string      `json:"mbean"`
+	Operation string      `json:"operation"`
 	Arguments interface{} `json:"arguments"`
-	Target `json:"target"`
+	Target    `json:"target"`
 }
 
 /* ENUM to be used */
@@ -114,38 +114,33 @@ type httpRequest struct {
 
 /* Http response param */
 type httpResponse struct {
-	Status string
+	Status     string
 	StatusCode int
-	Body   []byte
+	Body       []byte
 }
 
-func (jolokiaClient *JolokiaClient) performPostRequest(request *httpRequest) (*httpResponse, error) {
+func performPostRequest(request *httpRequest, user, pass string) (*httpResponse, error) {
 
 	var url = request.Url
 	var req *http.Request
 	var newReqErr error
 
-	//fmt.Println("Request Url: ", url)
-	//fmt.Println("Request Body: ", string(request.Body))
-
 	if request.Body != nil {
 		var jsonStr = request.Body
 		req, newReqErr = http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 		if newReqErr != nil {
-			//fmt.Printf("Request Could not be prepared")
 			return nil, newReqErr
 		}
 		req.Header.Set("Content-Type", "application/json")
 	} else {
 		req, newReqErr = http.NewRequest("POST", url, nil)
 		if newReqErr != nil {
-			//fmt.Printf("Request Could not be prepared")
 			return nil, newReqErr
 		}
 	}
 
-	if jolokiaClient.user != "" || jolokiaClient.pass != "" {
-		req.SetBasicAuth(jolokiaClient.user, jolokiaClient.pass)
+	if user != "" || pass != "" {
+		req.SetBasicAuth(user, pass)
 	}
 
 	client := &http.Client{}
@@ -156,11 +151,8 @@ func (jolokiaClient *JolokiaClient) performPostRequest(request *httpRequest) (*h
 		return nil, reqErr
 	}
 	defer resp.Body.Close()
-	
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
+
 	body, _ := ioutil.ReadAll(resp.Body)
-	//fmt.Println("response Body:", string(body))
 
 	response := &httpResponse{}
 	response.Status = resp.Status
@@ -202,7 +194,7 @@ func wrapExecData(mbeanName string, properties []string, operation string, argum
 	return jsbyte, nil
 }
 
-func buildMbeanName(mbeanName string, properties []string) (string) {
+func buildMbeanName(mbeanName string, properties []string) string {
 	mbean := mbeanName
 	if properties != nil {
 		for pos := range properties {
@@ -212,7 +204,7 @@ func buildMbeanName(mbeanName string, properties []string) (string) {
 	return mbean
 }
 
-func buildTargetUrl(targetUrl string) (string) {
+func buildTargetUrl(targetUrl string) string {
 	target := ""
 	if targetUrl != "" {
 		if strings.HasPrefix(targetUrl, "service:jmx:") {
@@ -221,7 +213,7 @@ func buildTargetUrl(targetUrl string) (string) {
 			target = "service:jmx:rmi:///jndi/rmi://" + targetUrl + "/jmxrmi"
 		}
 	}
-	return target;
+	return target
 }
 
 /* Creates a Jolokia Client for a specific url e.g. "http://127.0.0.1:8080/jolokia" */
@@ -276,7 +268,7 @@ func (jolokiaClient *JolokiaClient) executePostRequestCallback(pattern string, w
 		requestUrl = requestUrl + "/?" + pattern
 	}
 	request := &httpRequest{Url: requestUrl, Body: jsonReq}
-	response, httpErr := jolokiaClient.performPostRequest(request)
+	response, httpErr := performPostRequest(request, jolokiaClient.user, jolokiaClient.pass)
 	if httpErr != nil {
 		return "", fmt.Errorf("HTTP Request Failed: %v", httpErr)
 	}
@@ -289,14 +281,14 @@ func (jolokiaClient *JolokiaClient) executePostRequestCallback(pattern string, w
 
 /* Executes a jolokia request using a jolokia client and return response */
 func (jolokiaClient *JolokiaClient) executePostRequest(jolokiaRequest *JolokiaRequest, pattern string) (string, error) {
-	return jolokiaClient.executePostRequestCallback(pattern, func()([]byte, error) {
+	return jolokiaClient.executePostRequestCallback(pattern, func() ([]byte, error) {
 		return wrapRequestData(jolokiaRequest.opType, jolokiaRequest.mbean, jolokiaRequest.properties, jolokiaRequest.path, jolokiaRequest.attribute, jolokiaClient.target, jolokiaClient.targetUser, jolokiaClient.targetPass)
 	})
 }
 
 /* Executes a jolokia operation execution request using a jolokia client and return response */
 func (jolokiaClient *JolokiaClient) ExecuteOperation(mBean, operation string, arguments interface{}, pattern string) (*JolokiaReadResponse, error) {
-	resp, requestErr := jolokiaClient.executePostRequestCallback(pattern, func()([]byte, error) {
+	resp, requestErr := jolokiaClient.executePostRequestCallback(pattern, func() ([]byte, error) {
 		return wrapExecData(mBean, nil, operation, arguments, jolokiaClient.target, jolokiaClient.targetUser, jolokiaClient.targetPass)
 	})
 	if requestErr != nil {

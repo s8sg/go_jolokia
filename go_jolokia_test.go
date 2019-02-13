@@ -1,4 +1,4 @@
-// Copyright © 2014 Swarvanu Sengupta <swarvanusg.com>.
+// Maintainer Swarvanu Sengupta <swarvanusg@gmail.com>.
 //
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
@@ -21,8 +21,8 @@ var (
 func TestClientExecuteOperation(t *testing.T) {
 	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
 	client.SetTarget(targetHost + ":" + targetPort)
-	result, err := client.ExecuteOperation("java.lang:type=Threading", "getThreadInfo([J,boolean,boolean)", 
-		[]interface{}{[]int{153,263}, true, true}, "")
+	result, err := client.ExecuteOperation("java.lang:type=Threading", "getThreadInfo([J,boolean,boolean)",
+		[]interface{}{[]int{153, 263}, true, true}, "")
 	if err != nil {
 		t.Errorf("err(%s) returned", err)
 	}
