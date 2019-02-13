@@ -119,7 +119,7 @@ type httpResponse struct {
 	Body   []byte
 }
 
-func performPostRequest(request *httpRequest) (*httpResponse, error) {
+func (jolokiaClient *JolokiaClient) performPostRequest(request *httpRequest) (*httpResponse, error) {
 
 	var url = request.Url
 	var req *http.Request
@@ -143,6 +143,11 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 			return nil, newReqErr
 		}
 	}
+
+	if jolokiaClient.user != "" || jolokiaClient.pass != "" {
+		req.SetBasicAuth(jolokiaClient.user, jolokiaClient.pass)
+	}
+
 	client := &http.Client{}
 
 	resp, reqErr := client.Do(req)
@@ -271,7 +276,7 @@ func (jolokiaClient *JolokiaClient) executePostRequestCallback(pattern string, w
 		requestUrl = requestUrl + "/?" + pattern
 	}
 	request := &httpRequest{Url: requestUrl, Body: jsonReq}
-	response, httpErr := performPostRequest(request)
+	response, httpErr := jolokiaClient.performPostRequest(request)
 	if httpErr != nil {
 		return "", fmt.Errorf("HTTP Request Failed: %v", httpErr)
 	}
