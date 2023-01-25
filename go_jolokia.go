@@ -28,6 +28,8 @@ type JolokiaClient struct {
 	targetUser string
 	// The target host jmx password (required if target user is specified)
 	targetPass string
+	// Configure will be applied to the underlying http client before sending request
+	Configure func(client *http.Client) error
 }
 
 /* Jolokia Request properties */
@@ -119,7 +121,7 @@ type httpResponse struct {
 	Body       []byte
 }
 
-func performPostRequest(request *httpRequest, user, pass string) (*httpResponse, error) {
+func performPostRequest(request *httpRequest, user, pass string, configure func(client *http.Client) error) (*httpResponse, error) {
 
 	var url = request.Url
 	var req *http.Request
@@ -144,6 +146,11 @@ func performPostRequest(request *httpRequest, user, pass string) (*httpResponse,
 	}
 
 	client := &http.Client{}
+	if configure != nil {
+		if confErr := configure(client); confErr != nil {
+			return nil, confErr
+		}
+	}
 
 	resp, reqErr := client.Do(req)
 	if reqErr != nil {
@@ -268,7 +275,7 @@ func (jolokiaClient *JolokiaClient) executePostRequestCallback(pattern string, w
 		requestUrl = requestUrl + "/?" + pattern
 	}
 	request := &httpRequest{Url: requestUrl, Body: jsonReq}
-	response, httpErr := performPostRequest(request, jolokiaClient.user, jolokiaClient.pass)
+	response, httpErr := performPostRequest(request, jolokiaClient.user, jolokiaClient.pass, jolokiaClient.Configure)
 	if httpErr != nil {
 		return "", fmt.Errorf("HTTP Request Failed: %v", httpErr)
 	}
