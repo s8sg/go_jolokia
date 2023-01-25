@@ -4,7 +4,11 @@
 // license that can be found in the LICENSE file.
 package go_jolokia
 
-import "testing"
+import (
+	"net/http"
+	"strings"
+	"testing"
+)
 import "fmt"
 
 // Note that these test currently expect a jolokia java process to be
@@ -27,6 +31,23 @@ func TestClientExecuteOperation(t *testing.T) {
 		t.Errorf("err(%s) returned", err)
 	}
 	fmt.Println("Operation result: ", result)
+}
+
+func TestConfigureClient(t *testing.T) {
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.Configure = func(client *http.Client) error {
+		client.Timeout = 1
+		return nil
+	}
+	client.SetTarget(targetHost + ":" + targetPort)
+	_, err := client.ExecuteOperation("java.lang:type=Threading", "getThreadInfo([J,boolean,boolean)",
+		[]interface{}{[]int{153, 263}, true, true}, "")
+	if err == nil {
+		t.Errorf("expected err, got nil")
+	}
+	if !strings.Contains(err.Error(), "Client.Timeout exceeded") {
+		t.Errorf("unexpected err, got: %v", err)
+	}
 }
 
 func TestClientListDomainsOverridingInternalUrl(t *testing.T) {
